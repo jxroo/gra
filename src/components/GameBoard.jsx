@@ -11,8 +11,9 @@ const GameBoard = () => {
             <div className="center-cards">
                 <h3>Crime Scene</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    {gameState.centerCards.map((card, idx) => (
-                        <div key={idx} className="card-back" style={{
+                    {/* Single criminal card face-down */}
+                    {gameState.criminal && (
+                        <div className="card-back" style={{
                             width: '60px', height: '90px',
                             background: '#444', border: '2px solid #666',
                             borderRadius: '4px', display: 'flex',
@@ -20,18 +21,11 @@ const GameBoard = () => {
                         }}>
                             ?
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
 
-            <div className="log-area" style={{
-                position: 'absolute', top: 10, right: 10,
-                width: '250px', height: '150px',
-                background: 'rgba(0,0,0,0.5)', overflowY: 'auto',
-                fontSize: '0.8rem', padding: '5px'
-            }}>
-                {messageLog.map(msg => <div key={msg.id}>{msg.text}</div>)}
-            </div>
+
 
             {/* Opponent info removed as requested */}
 

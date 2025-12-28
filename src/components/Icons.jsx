@@ -40,28 +40,20 @@ export const BulbIcon = (props) => (
 
 export const FistIcon = (props) => (
     <IconWrapper {...props}>
-        <path d="M10 14L8 12l6-6 2.5 1.5M10.5 15.5l-2.5-3L3.5 16 10 22l8-7-2.5-4-3 3" />
-        {/* Actually fit/hand is hard to draw in path manually, let's use a simpler "Hand/Glove" metaphor or a solid fist */}
-        <path d="M11 11.5v-3a2.5 2.5 0 0 1 5 0v3" />
-        <path d="M11 13.5v-3" />
-        <path d="M8 12.5v-2" />
-        <path d="M5 14v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-4" />
-        <path d="M15 14h2" />
-        {/* Let's try a simpler 'Rock' or Punch shape from Lucide 'Grab' or similar */}
-        <path d="M16 11c0-2-1-3-3-3s-3 1-3 3v2h6v-2z" />
-        <path d="M16 13h-6v4c0 1 1 2 3 2s3-1 3-2v-4z" />
-        <path d="M10 13l-2 2" />
-        <line x1="8" y1="15" x2="6" y2="15" />
+        <rect x="6" y="8" width="12" height="10" rx="3" />
+        <path d="M6 12h12" />
+        <path d="M10 8V5a1 1 0 0 1 2 0v3" />
+        <path d="M14 8V6a1 1 0 0 1 2 0v2" />
+        <path d="M6 8V7a1 1 0 0 1 2 0v1" />
     </IconWrapper>
 );
-// Let's replace with better path data from standard sets.
 
 export const BadgeIcon = (props) => (
     <IconWrapper {...props}>
         <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.78 4 4 0 0 1 0-6.74z" />
         <path d="M12 8v8" />
         <path d="M8 12h8" />
-    </IconWrapper> // Star/Badge shape
+    </IconWrapper>
 );
 
 export const BookIcon = (props) => (
@@ -99,68 +91,68 @@ export const SkullIcon = (props) => (
     </IconWrapper>
 );
 
-// Improved paths attempts
+// Utility Icons
+export const InfoIcon = (props) => (
+    <IconWrapper {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+    </IconWrapper>
+);
+
+export const CheckIcon = (props) => (
+    <IconWrapper {...props}>
+        <polyline points="20 6 9 17 4 12" />
+    </IconWrapper>
+);
+
+export const CrossIcon = (props) => (
+    <IconWrapper {...props}>
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+    </IconWrapper>
+);
+
+export const AlertIcon = (props) => (
+    <IconWrapper {...props}>
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+    </IconWrapper>
+);
+
+export const RobotIcon = (props) => (
+    <IconWrapper {...props}>
+        <rect x="3" y="11" width="18" height="10" rx="2" />
+        <circle cx="12" cy="5" r="2" />
+        <path d="M12 7v4" />
+        <line x1="8" y1="16" x2="8" y2="16" />
+        <line x1="16" y1="16" x2="16" y2="16" />
+    </IconWrapper>
+);
+
+export const SearchIcon = (props) => (
+    <IconWrapper {...props}>
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </IconWrapper>
+);
+
 export const IconsComplete = {
-    Pipe: (props) => (
-        <IconWrapper {...props} viewBox="0 0 24 24">
-            <path d="M13 12h-2.5a2.5 2.5 0 0 0-2.5 2.5V19a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1v-4.5a2.5 2.5 0 0 0-2.5-2.5z" />
-            <path d="M13 12V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2" />
-            <path d="M15 12h2a3 3 0 0 1 3 3" />
-            <path d="M16 8h-4" />
-        </IconWrapper>
-    ),
-    Bulb: (props) => (
-        <IconWrapper {...props}>
-            <path d="M9 18h6" />
-            <path d="M10 22h4" />
-            <path d="M12 2a7 7 0 0 0-7 7c0 2 2 3 4 4.5V18a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4.5C17 12 19 11 19 9a7 7 0 0 0-7-7z" />
-            <polyline points="9 9 12 12 15 9" />
-        </IconWrapper>
-    ),
-    Fist: (props) => (
-        <IconWrapper {...props}>
-            <rect x="6" y="8" width="12" height="10" rx="3" />
-            <path d="M6 12h12" />
-            <path d="M10 8V5a1 1 0 0 1 2 0v3" />
-            <path d="M14 8V6a1 1 0 0 1 2 0v2" />
-            <path d="M6 8V7a1 1 0 0 1 2 0v1" />
-        </IconWrapper>
-    ),
-    Badge: (props) => (
-        <IconWrapper {...props}>
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <path d="M12 8l2 5h-4z" />
-        </IconWrapper>
-    ),
-    Book: (props) => (
-        <IconWrapper {...props}>
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </IconWrapper>
-    ),
-    Necklace: (props) => (
-        <IconWrapper {...props}>
-            <path d="M12 22a9 9 0 0 1-9-9 9 9 0 0 1 13.5-7.6L12 12l4.5 6.6A9 9 0 0 1 12 22z" />
-            <circle cx="12" cy="12" r="2" />
-            <path d="M12 2v2" />
-        </IconWrapper>
-    ),
-    Eye: (props) => (
-        <IconWrapper {...props}>
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-            <circle cx="12" cy="12" r="3" />
-        </IconWrapper>
-    ),
-    Skull: (props) => (
-        <IconWrapper {...props}>
-            <circle cx="9" cy="12" r="1" />
-            <circle cx="15" cy="12" r="1" />
-            <path d="M8 20v2h8v-2" />
-            <path d="M12 16v0" />
-            <path d="M12.5 17l-.5-4" />
-            <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
-        </IconWrapper>
-    )
+    Pipe: PipeIcon,
+    Bulb: BulbIcon,
+    Fist: FistIcon,
+    Badge: BadgeIcon,
+    Book: BookIcon,
+    Necklace: NecklaceIcon,
+    Eye: EyeIcon,
+    Skull: SkullIcon,
+    Info: InfoIcon,
+    Check: CheckIcon,
+    Cross: CrossIcon,
+    Alert: AlertIcon,
+    Robot: RobotIcon,
+    Search: SearchIcon
 };
 
 export const ICONS = IconsComplete;

@@ -3,6 +3,7 @@ import './App.css'
 import { useGame } from './context/GameContext'
 import GameBoard from './components/GameBoard'
 import InvestigationSheet from './components/InvestigationSheet'
+import GameLog from './components/GameLog'
 
 function App() {
   const { gameState, startGame } = useGame();
@@ -30,6 +31,7 @@ function App() {
       <div className="game-area side-layout">
         <div className="sheet-container main-view">
           <InvestigationSheet />
+          <GameLog />
         </div>
         <div className="board-container side-panel">
           <GameBoard />

@@ -66,10 +66,7 @@ const InvestigationSheet = () => {
             {/* Top Grid: 4x8 */}
             <div style={{ overflowX: 'auto', flexShrink: 0 }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed' }}>
-                    <colgroup>
-                        <col style={{ width: '80px' }} /> {/* Player Column - WIDER: 80px */}
-                        {orderedSymbols.map(sym => <col key={sym} />)}
-                    </colgroup>
+                    <colgroup><col style={{ width: '80px' }} />{orderedSymbols.map(sym => <col key={sym} />)}</colgroup>
                     <thead>
                         <tr>
                             <th style={{ textAlign: 'left', borderBottom: '1px solid #666', padding: '4px' }}></th>
