@@ -108,17 +108,20 @@ const GameLog = () => {
             boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)'
         }}>
             <h4 style={{
-                margin: '0 0 10px 0',
+                margin: '0',
+                padding: '0 0 10px 0',
                 color: '#aaa',
                 fontSize: '0.8rem',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
                 position: 'sticky',
                 top: 0,
-                // background: 'rgba(20, 20, 30, 0.95)',
+                background: 'rgb(30, 30, 40)', // Match container bg or close to it
+                zIndex: 10,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                borderBottom: '1px solid #333'
             }}>
                 <ICONS.Book size={14} /> Investigation Log
             </h4>

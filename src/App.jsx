@@ -4,28 +4,32 @@ import { useGame } from './context/GameContext'
 import GameBoard from './components/GameBoard'
 import InvestigationSheet from './components/InvestigationSheet'
 import GameLog from './components/GameLog'
+import LobbyScreen from './components/LobbyScreen'
+import { ChatPanel, NotesPanel } from './components/ChatPanel'
 
 function App() {
-  const { gameState, startGame } = useGame();
+  const { gameState, startGame, localPlayer } = useGame();
 
-  if (gameState.phase === 'SETUP') {
+  if (gameState.phase === 'SETUP' || gameState.phase === 'LOBBY') {
     return (
       <div className="app-container" style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <h1>Sherlock - The Game</h1>
-        <p>A digital implementation of the deduction board game.</p>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => startGame(3)}>Start 3 Player Game</button>
-          <button onClick={() => startGame(4)}>Start 4 Player Game</button>
-        </div>
+        <LobbyScreen />
       </div>
     );
   }
 
   return (
     <div className="app-container">
-      <header className="header">
-        <h2>Sherlock</h2>
-        <span>Turn: {gameState.currentPlayerId === 'p1' ? 'YOU' : gameState.currentPlayerId}</span>
+      <header className="header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <h2>Sherlock</h2>
+          <span style={{ fontSize: '0.8em', color: '#888' }}>Lobby: {gameState.lobbyCode}</span>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div>Turn: <span style={{ color: gameState.currentPlayerId === localPlayer.id ? 'lime' : 'white' }}>
+            {gameState.currentPlayerId === localPlayer.id ? 'YOU' : gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}
+          </span></div>
+        </div>
       </header>
 
       <div className="game-area side-layout">
@@ -35,6 +39,8 @@ function App() {
         </div>
         <div className="board-container side-panel">
           <GameBoard />
+          <ChatPanel />
+          <NotesPanel />
         </div>
       </div>
     </div>

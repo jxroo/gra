@@ -3,6 +3,17 @@ import { SYMBOLS, SYMBOL_COUNTS, CARDS, SYMBOL_EMOJIS } from '../data/gameData';
 import { useGame } from '../context/GameContext';
 import { ICONS } from './Icons';
 
+const SYMBOL_COLORS = {
+    [SYMBOLS.FAJKA]: '#8d6e63', // Brown
+    [SYMBOLS.ZAROWKA]: '#ffeb3b', // Yellow
+    [SYMBOLS.PIESC]: '#e57373', // Red/Pink
+    [SYMBOLS.ODZNAKA]: '#ffd700', // Gold
+    [SYMBOLS.KSIAZKA]: '#4fc3f7', // Light Blue
+    [SYMBOLS.NASZYJNIK]: '#ce93d8', // Purple
+    [SYMBOLS.OKO]: '#a5d6a7', // Green
+    [SYMBOLS.CZASZKA]: '#cfd8dc', // Grey
+};
+
 // Mapping symbols to Icon components
 const SYMBOL_ICONS = {
     [SYMBOLS.FAJKA]: ICONS.Pipe,
@@ -55,7 +66,19 @@ const InvestigationSheet = () => {
     // We need 4 rows for players. 
     // In a real game, these might be named "Me", "Player 2", etc.
     // Let's use indices 0-3.
-    const playerRows = ['Me', 'P2', 'P3', 'P4'];
+    // Nick lokalnego gracza zawsze pierwszy, reszta w oryginalnej kolejności
+    let playerRows = ['Me', 'P2', 'P3', 'P4'];
+    if (gameState.players.length > 0) {
+        const localIdx = gameState.players.findIndex(p => p.id === localPlayer.id);
+        if (localIdx !== -1) {
+            playerRows = [
+                gameState.players[localIdx].name,
+                ...gameState.players.filter((_, idx) => idx !== localIdx).map(p => p.name)
+            ];
+        } else {
+            playerRows = gameState.players.map(p => p.name);
+        }
+    }
 
     return (
         <div className="sheet" style={{ color: '#fff', fontSize: '0.9rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -79,7 +102,7 @@ const InvestigationSheet = () => {
                                         padding: '4px', textAlign: 'center'
                                     }}>
                                         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2px' }}>
-                                            <Icon size={20} color="#ddd" />
+                                            <Icon size={24} color={SYMBOL_COLORS[sym]} strokeWidth={2} />
                                         </div>
                                         <div style={{ color: '#aaa', fontSize: '0.7em' }}>({SYMBOL_COUNTS[sym]})</div>
                                     </th>
@@ -93,19 +116,35 @@ const InvestigationSheet = () => {
                                 <td style={{ borderBottom: '1px solid #444', padding: '4px', fontWeight: 'bold' }}>{pName}</td>
                                 {orderedSymbols.map(sym => (
                                     <td key={sym}
-                                        onClick={() => toggleCell(pIdx, sym)}
                                         style={{
                                             borderBottom: '1px solid #444',
                                             borderLeft: '1px solid #444',
                                             textAlign: 'center',
-                                            cursor: 'pointer',
                                             height: '34px',
                                             fontSize: '1.1rem',
                                             backgroundColor: gridState[`${pIdx}_${sym}`] === '✓' ? 'rgba(0, 255, 0, 0.2)' :
                                                 gridState[`${pIdx}_${sym}`] === '✗' ? 'rgba(255, 0, 0, 0.2)' : 'transparent'
                                         }}
                                     >
-                                        {gridState[`${pIdx}_${sym}`]}
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            maxLength={2}
+                                            style={{
+                                                width: '90%',
+                                                background: 'transparent',
+                                                color: '#fff',
+                                                border: 'none',
+                                                textAlign: 'center',
+                                                fontSize: '1.1rem',
+                                            }}
+                                            value={gridState[`${pIdx}_${sym}`] || ''}
+                                            onChange={e => {
+                                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                                setGridState(prev => ({ ...prev, [`${pIdx}_${sym}`]: val }));
+                                            }}
+                                        />
                                     </td>
                                 ))}
                             </tr>
@@ -143,7 +182,7 @@ const InvestigationSheet = () => {
                             <div style={{ fontSize: '1rem', color: '#ccc', marginTop: 'auto', display: 'flex', gap: '3px', justifyContent: 'center', flexWrap: 'wrap' }}>
                                 {char.symbols.map((s, i) => {
                                     const Icon = SYMBOL_ICONS[s];
-                                    return <Icon key={i} size={14} color="#ccc" />
+                                    return <Icon key={i} size={16} color={SYMBOL_COLORS[s]} strokeWidth={2} />
                                 })}
                             </div>
                         </div>

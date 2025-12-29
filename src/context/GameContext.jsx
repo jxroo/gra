@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { CARDS, SYMBOLS } from '../data/gameData';
+import { useSocket } from './SocketContext';
 
 const GameContext = createContext();
 
@@ -10,6 +11,9 @@ let logIdCounter = 0;
 const getUniqueLogId = () => ++logIdCounter;
 
 export const GameProvider = ({ children }) => {
+    const { socket } = useSocket();
+
+    // State
     const [gameState, setGameState] = useState({
         phase: 'SETUP', // SETUP, PLAYING, GAME_OVER
         players: [],
@@ -18,6 +22,7 @@ export const GameProvider = ({ children }) => {
         eliminated: [], // Player IDs who made wrong accusations
         turnOrder: [],
         winner: null,
+        lobbyCode: null // Added for multiplayer
     });
 
     const [localPlayer, setLocalPlayer] = useState({
@@ -33,231 +38,119 @@ export const GameProvider = ({ children }) => {
         setMessageLog(prev => [...prev, { id: getUniqueLogId(), text: msg, type }]);
     }, []);
 
-    // Helper: Get next active player (skip eliminated)
-    const getNextActivePlayer = useCallback((currentId, turnOrder, eliminated) => {
-        const activeOrder = turnOrder.filter(id => !eliminated.includes(id));
-        if (activeOrder.length <= 1) return null; // Game should end
+    // --- SOCKET INTEGRATION ---
+    useEffect(() => {
+        if (!socket) return;
 
-        const currentIdx = activeOrder.indexOf(currentId);
-        const nextIdx = (currentIdx + 1) % activeOrder.length;
-        return activeOrder[nextIdx];
-    }, []);
+        // On game start
+        socket.on('gameStarted', (data) => {
+            setGameState(prev => ({
+                ...prev,
+                phase: data.phase,
+                players: data.players,
+                turnOrder: data.turnOrder,
+                currentPlayerId: data.currentPlayerId,
+            }));
 
-    // Helper: Check win condition
-    const checkWinCondition = useCallback((eliminated, turnOrder) => {
-        const activePlayers = turnOrder.filter(id => !eliminated.includes(id));
-        if (activePlayers.length === 1) {
-            return activePlayers[0]; // Last standing wins
-        }
-        return null;
-    }, []);
-
-    // ACTION: Start Game
-    const startGame = useCallback((playerCount = 3) => {
-        logIdCounter = 0; // Reset log counter
-
-        // 1. Shuffle Cards
-        const shuffled = [...CARDS].sort(() => Math.random() - 0.5);
-
-        // 2. Select Criminal (1 card face-down in center)
-        const criminal = shuffled.pop();
-
-        // 3. Deal remaining cards
-        const cardsPerPlayer = Math.floor(12 / playerCount);
-        const dealtPlayers = [];
-
-        for (let i = 0; i < playerCount; i++) {
-            const hand = shuffled.splice(0, cardsPerPlayer);
-            dealtPlayers.push({
-                id: `p${i + 1}`,
-                name: i === 0 ? 'You' : `Player ${i + 1}`,
-                hand: hand,
-                cardCount: hand.length,
-            });
-        }
-
-        const p1Hand = dealtPlayers[0].hand;
-
-        setGameState({
-            phase: 'PLAYING',
-            players: dealtPlayers,
-            currentPlayerId: 'p1',
-            criminal: criminal,
-            eliminated: [],
-            turnOrder: dealtPlayers.map(p => p.id),
-            winner: null,
+            setMessageLog([]);
+            addToLog("Game Started!", "system");
         });
 
-        setLocalPlayer(prev => ({
-            ...prev,
-            hand: p1Hand,
-        }));
+        // On hand update (private)
+        socket.on('yourHand', (hand) => {
+            setLocalPlayer(prev => ({ ...prev, hand }));
+        });
 
-        setMessageLog([]);
-        addToLog(`Game started with ${playerCount} players.`, 'system');
-        addToLog(`You have ${p1Hand.length} cards in hand.`, 'system');
-    }, [addToLog]);
+        // On state update (turn change, logs)
+        socket.on('stateUpdate', (data) => {
+            setGameState(prev => ({
+                ...prev,
+                currentPlayerId: data.currentPlayerId,
+            }));
 
-    // ACTION: Investigation
-    const performInvestigation = useCallback((symbol) => {
-        if (gameState.currentPlayerId !== localPlayer.id) {
-            addToLog("It's not your turn!", 'error');
-            return;
-        }
+            // Append logs
+            if (data.log && data.log.length > 0) {
+                setMessageLog(prev => {
+                    const newLogs = data.log.filter(l => !prev.some(pl => pl.id === l.id));
+                    return [...prev, ...newLogs];
+                });
+            }
+        });
 
-        addToLog(`You asked: "Who has ${symbol}?"`, 'investigation');
-
-        const responders = gameState.players
-            .filter(p => p.id !== localPlayer.id)
-            .filter(p => !gameState.eliminated.includes(p.id))
-            .filter(p => p.hand && p.hand.some(c => c.symbols.includes(symbol)));
-
-        if (responders.length > 0) {
-            const names = responders.map(p => p.name).join(', ');
-            addToLog(`${names} raised their hand.`, 'response');
-        } else {
-            addToLog(`No one raised their hand.`, 'response_empty');
-        }
-
-        advanceTurn();
-    }, [gameState, localPlayer.id, addToLog]);
-
-    // ACTION: Interrogation
-    const performInterrogation = useCallback((targetPlayerId, symbol) => {
-        if (gameState.currentPlayerId !== localPlayer.id) {
-            addToLog("It's not your turn!");
-            return;
-        }
-
-        const target = gameState.players.find(p => p.id === targetPlayerId);
-        if (!target) {
-            addToLog("Invalid target player.");
-            return;
-        }
-
-        addToLog(`You asked ${target.name}: "How many ${symbol} do you have?"`, 'interrogation');
-
-        const count = target.hand
-            ? target.hand.reduce((sum, card) => {
-                return sum + card.symbols.filter(s => s === symbol).length;
-            }, 0)
-            : 0;
-
-        addToLog(`${target.name} answered: "${count}"`, 'response');
-
-        advanceTurn();
-    }, [gameState, localPlayer.id, addToLog]);
-
-    // ACTION: Accusation
-    const performAccusation = useCallback((suspectCardId) => {
-        if (gameState.currentPlayerId !== localPlayer.id) {
-            addToLog("It's not your turn!");
-            return;
-        }
-
-        const suspect = CARDS.find(c => c.id === Number(suspectCardId));
-        if (!suspect) {
-            addToLog("Invalid suspect.");
-            return;
-        }
-
-        addToLog(`You accused: ${suspect.name}`, 'accusation');
-
-        if (gameState.criminal.id === suspect.id) {
-            addToLog(`CORRECT! ${suspect.name} is the criminal! YOU WIN!`, 'success');
+        // On Game Over
+        socket.on('gameOver', (data) => {
             setGameState(prev => ({
                 ...prev,
                 phase: 'GAME_OVER',
-                winner: localPlayer.id,
+                winner: data.winner,
+                criminal: data.criminal
             }));
-        } else {
-            addToLog(`WRONG! That is not the criminal.`, 'failure');
-            addToLog(`You are eliminated from the game.`, 'failure');
-
-            const newEliminated = [...gameState.eliminated, localPlayer.id];
-            const lastStanding = checkWinCondition(newEliminated, gameState.turnOrder);
-
-            if (lastStanding) {
-                const winner = gameState.players.find(p => p.id === lastStanding);
-                addToLog(`${winner.name} wins as the last remaining player!`, 'success');
-                setGameState(prev => ({
-                    ...prev,
-                    phase: 'GAME_OVER',
-                    eliminated: newEliminated,
-                    winner: lastStanding,
-                }));
-            } else {
-                setGameState(prev => ({
-                    ...prev,
-                    eliminated: newEliminated,
-                }));
-                advanceTurn();
-            }
-        }
-    }, [gameState, localPlayer.id, addToLog, checkWinCondition]);
-
-    // Advance Turn: Move to next player and auto-play bots
-    const advanceTurn = useCallback(() => {
-        setGameState(prev => {
-            const nextPlayer = getNextActivePlayer(prev.currentPlayerId, prev.turnOrder, prev.eliminated);
-
-            if (!nextPlayer) {
-                return prev;
-            }
-
-            return {
-                ...prev,
-                currentPlayerId: nextPlayer,
-            };
+            addToLog(`GAME OVER! Winner: ${data.winner}`, 'system');
         });
-    }, [getNextActivePlayer]);
 
-    // Effect: Auto-play bot turns
-    useEffect(() => {
-        if (gameState.phase !== 'PLAYING') return;
-        if (gameState.currentPlayerId === localPlayer.id) return;
-        if (gameState.eliminated.includes(gameState.currentPlayerId)) {
-            advanceTurn();
-            return;
-        }
-
-        const currentBot = gameState.players.find(p => p.id === gameState.currentPlayerId);
-        if (!currentBot) return;
-
-        // Bot takes a turn after a short delay
-        const timer = setTimeout(() => {
-            // Simple bot AI: random investigation
-            const symbols = Object.values(SYMBOLS);
-            const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-
-            // Log turn start
-            // We can add a "turn" log if we want, but "asked" implies it
-
-            addToLog(`${currentBot.name} asked: "Who has ${randomSymbol}?"`, 'investigation_bot');
-
-            const responders = gameState.players
-                .filter(p => p.id !== currentBot.id)
-                .filter(p => !gameState.eliminated.includes(p.id))
-                .filter(p => p.hand && p.hand.some(c => c.symbols.includes(randomSymbol)));
-
-            if (responders.length > 0) {
-                const names = responders.map(p => p.name).join(', ');
-                addToLog(`${names} raised their hand.`, 'response');
-            } else {
-                addToLog(`No one raised their hand.`, 'response_empty');
+        // On Lobby update (to keep lobbyCode sync if needed)
+        socket.on('lobbyUpdated', (lobby) => {
+            // Store lobby info if valuable
+            setGameState(prev => ({ ...prev, lobbyCode: lobby.code }));
+            // Also update local player ID if we find ourselves
+            const me = lobby.players.find(p => p.id === socket.id);
+            if (me) {
+                setLocalPlayer(prev => ({ ...prev, id: me.id, name: me.name }));
             }
+        });
 
-            advanceTurn();
-        }, 1200);
+        return () => {
+            socket.off('gameStarted');
+            socket.off('yourHand');
+            socket.off('stateUpdate');
+            socket.off('gameOver');
+            socket.off('lobbyUpdated');
+        };
+    }, [socket, addToLog]);
 
-        return () => clearTimeout(timer);
-    }, [gameState.currentPlayerId, gameState.phase, gameState.players, gameState.eliminated, localPlayer.id, addToLog, advanceTurn]);
+
+    // ACTION: Start Game (Only host triggers this via LobbyScreen, but we keep this stub or remove)
+    const startGame = useCallback((playerCount = 3) => {
+        // Deprecated in MP mode, handled by LobbyScreen -> socket -> server
+        console.warn("startGame called locally, but should be via socket");
+    }, []);
+
+    // ACTION: Investigation
+    const performInvestigation = useCallback((symbol) => {
+        if (!socket || !gameState.lobbyCode) return;
+        socket.emit('gameAction', {
+            code: gameState.lobbyCode,
+            type: 'investigation',
+            payload: { symbol }
+        });
+        // We do NOT optimize locally; rely on server response to avoid desync
+    }, [socket, gameState.lobbyCode]);
+
+    // ACTION: Interrogation
+    const performInterrogation = useCallback((targetPlayerId, symbol) => {
+        if (!socket || !gameState.lobbyCode) return;
+        socket.emit('gameAction', {
+            code: gameState.lobbyCode,
+            type: 'interrogation',
+            payload: { targetId: targetPlayerId, symbol }
+        });
+    }, [socket, gameState.lobbyCode]);
+
+    // ACTION: Accusation
+    const performAccusation = useCallback((suspectCardId) => {
+        if (!socket || !gameState.lobbyCode) return;
+        socket.emit('gameAction', {
+            code: gameState.lobbyCode,
+            type: 'accusation',
+            payload: { cardId: suspectCardId }
+        });
+    }, [socket, gameState.lobbyCode]);
 
     const value = useMemo(() => ({
         gameState,
         localPlayer,
         messageLog,
-        startGame,
+        startGame,  // Exported but deprecated
         addToLog,
         performInvestigation,
         performInterrogation,
