@@ -32,12 +32,12 @@ const LobbyScreen = () => {
     }, [socket]);
 
     const handleCreate = () => {
-        if (!playerName) return setError('Enter name first');
+        if (!playerName) return setError('Wpisz najpierw swoje imię');
         socket.emit('createLobby', { name: playerName });
     };
 
     const handleJoin = () => {
-        if (!playerName || !lobbyCode) return setError('Enter name and code');
+        if (!playerName || !lobbyCode) return setError('Wpisz imię i kod lobby');
         socket.emit('joinLobby', { code: lobbyCode.toUpperCase(), name: playerName });
     };
 
@@ -49,17 +49,17 @@ const LobbyScreen = () => {
     if (view === 'menu') {
         return (
             <div className="lobby-container" style={{ textAlign: 'center', maxWidth: '400px', margin: 'auto', paddingTop: '50px' }}>
-                <h1>Multiplayer Sherlock</h1>
+                <h1>Sherlock - Multiplayer</h1>
                 <input
                     type="text"
-                    placeholder="Enter your name"
+                    placeholder="Wpisz swoje imię"
                     value={playerName}
                     onChange={e => setPlayerName(e.target.value)}
                     style={{ padding: '8px', fontSize: '1.2em', width: '100%', marginBottom: '20px' }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <button onClick={() => setView('join')} disabled={!playerName}>Join Game</button>
-                    <button onClick={handleCreate} disabled={!playerName}>Create New Game</button>
+                    <button onClick={() => setView('join')} disabled={!playerName}>Dołącz do gry</button>
+                    <button onClick={handleCreate} disabled={!playerName}>Stwórz nową grę</button>
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </div>
@@ -69,17 +69,17 @@ const LobbyScreen = () => {
     if (view === 'join') {
         return (
             <div className="lobby-container" style={{ textAlign: 'center', maxWidth: '400px', margin: 'auto', paddingTop: '50px' }}>
-                <h2>Join Lobby</h2>
+                <h2>Dołącz do lobby</h2>
                 <input
                     type="text"
-                    placeholder="Enter 6-letter Code"
+                    placeholder="Wpisz 6-literowy kod"
                     value={lobbyCode}
                     onChange={e => setLobbyCode(e.target.value)}
                     style={{ padding: '8px', fontSize: '1.2em', width: '100%', marginBottom: '20px', textTransform: 'uppercase' }}
                 />
                 <div style={{ display: 'flex', gap: '10px', justifySelf: 'center' }}>
-                    <button onClick={handleJoin}>Join</button>
-                    <button onClick={() => setView('menu')} style={{ background: '#666' }}>Back</button>
+                    <button onClick={handleJoin}>Dołącz</button>
+                    <button onClick={() => setView('menu')} style={{ background: '#666' }}>Powrót</button>
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </div>
@@ -90,10 +90,11 @@ const LobbyScreen = () => {
         const isHost = lobbyState.players.find(p => p.name === playerName)?.isHost;
         return (
             <div className="lobby-container" style={{ textAlign: 'center', maxWidth: '500px', margin: 'auto', paddingTop: '50px' }}>
-                <h2>Lobby Code: <span style={{ fontFamily: 'monospace', fontSize: '1.5em', border: '1px solid #444', padding: '0 10px' }}>{lobbyState.code}</span></h2>
+                <h2>Kod lobby: <span style={{ fontFamily: 'monospace', fontSize: '1.5em', border: '1px solid #444', padding: '0 10px' }}>{lobbyState.code}</span></h2>
 
                 <div style={{ margin: '30px 0', border: '1px solid #333', padding: '20px', borderRadius: '8px' }}>
-                    <h3>Players ({lobbyState.players.length}/6)</h3>
+                    <h3>Gracze ({lobbyState.players.length}/4)</h3>
+                    <p style={{ color: '#666', fontSize: '1.5em' }}>(min. 3)</p>
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                         {lobbyState.players.map(p => (
                             <li key={p.id} style={{ padding: '5px', color: p.name === playerName ? 'lime' : 'white' }}>
@@ -104,9 +105,15 @@ const LobbyScreen = () => {
                 </div>
 
                 {isHost ? (
-                    <button onClick={handleStart} style={{ fontSize: '1.2em', padding: '10px 30px' }}>START GAME</button>
+                    <button
+                        onClick={handleStart}
+                        style={{ fontSize: '1.2em', padding: '10px 30px', opacity: lobbyState.players.length < 3 ? 0.5 : 1 }}
+                        disabled={lobbyState.players.length < 3}
+                    >
+                        Rozpocznij grę
+                    </button>
                 ) : (
-                    <p>Waiting for host to start...</p>
+                    <p>Czekanie na rozpoczęcie gry przez hosta...</p>
                 )}
             </div>
         );

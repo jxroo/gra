@@ -8,7 +8,7 @@ import LobbyScreen from './components/LobbyScreen'
 import { ChatPanel, NotesPanel } from './components/ChatPanel'
 
 function App() {
-  const { gameState, startGame, localPlayer } = useGame();
+  const { gameState, localPlayer } = useGame();
 
   if (gameState.phase === 'SETUP' || gameState.phase === 'LOBBY') {
     return (
@@ -26,7 +26,7 @@ function App() {
           <span style={{ fontSize: '0.8em', color: '#888' }}>Lobby: {gameState.lobbyCode}</span>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div>Turn: <span style={{ color: gameState.currentPlayerId === localPlayer.id ? 'lime' : 'white' }}>
+          <div>Kolejka: <span style={{ color: gameState.currentPlayerId === localPlayer.id ? 'lime' : 'white' }}>
             {gameState.currentPlayerId === localPlayer.id ? 'YOU' : gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}
           </span></div>
         </div>

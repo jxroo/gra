@@ -60,6 +60,10 @@ io.on('connection', (socket) => {
     socket.on('startGame', ({ code }) => {
         const lobby = lobbyManager.getLobby(code);
         if (!lobby || lobby.hostId !== socket.id) return;
+        if (lobby.players.length < 3) {
+            socket.emit('error', 'Potrzeba minimum 3 graczy, aby rozpocząć grę.');
+            return;
+        }
 
         // Game Setup Logic
         const shuffled = [...SERVER_CARDS].sort(() => Math.random() - 0.5);
@@ -81,7 +85,7 @@ io.on('connection', (socket) => {
         lobby.gameState.currentPlayerIdx = 0;
 
         // Log start
-        lobby.gameState.log.push({ id: Date.now(), text: `Game started with ${playerCount} players.`, type: 'system' });
+        lobby.gameState.log.push({ id: Date.now(), text: `Gra rozpoczęta z udziałem ${playerCount} graczy.`, type: 'system' });
 
         // Broadcast to everyone (sanitized)
         io.to(code).emit('gameStarted', {
@@ -110,17 +114,23 @@ io.on('connection', (socket) => {
         // Verify turn, unless it's a chat message
         const currentPlayerId = lobby.gameState.turnOrder[lobby.gameState.currentPlayerIdx];
         if (type !== 'chat' && socket.id !== currentPlayerId) {
-            socket.emit('error', 'Not your turn');
+            socket.emit('error', 'To nie jest Twoja tura');
             return;
         }
 
         const player = lobby.players.find(p => p.id === socket.id);
+
+        // Block eliminated players from everything except chat
+        if (type !== 'chat' && player.eliminated) {
+            socket.emit('error', 'Jesteś wyeliminowany(a) i nie możesz wykonywać ruchów.');
+            return;
+        }
         let logEntry = null;
         let shouldAdvanceTurn = true;
 
         if (type === 'investigation') {
             const { symbol } = payload;
-            logEntry = { id: Date.now(), text: `${player.name} asked: "Who has ${symbol}?"`, type: 'investigation' };
+            logEntry = { id: Date.now(), text: `${player.name} pyta: "Kto ma symbol: ${symbol}?"`, type: 'investigation' };
 
             // Check who has the symbol
             const responders = lobby.players
@@ -129,8 +139,8 @@ io.on('connection', (socket) => {
 
             const responderNames = responders.map(p => p.name).join(', ');
             const responseText = responders.length > 0
-                ? `${responderNames} raised their hand.`
-                : `No one raised their hand.`;
+                ? `${responderNames} podnieśli rękę.`
+                : `Nikt nie podniósł ręki.`;
 
             lobby.gameState.log.push(logEntry);
             lobby.gameState.log.push({ id: Date.now() + 1, text: responseText, type: responders.length > 0 ? 'response' : 'response_empty' });
@@ -140,36 +150,37 @@ io.on('connection', (socket) => {
             const target = lobby.players.find(p => p.id === targetId);
             if (!target) return;
 
-            logEntry = { id: Date.now(), text: `${player.name} asked ${target.name}: "How many ${symbol} do you have?"`, type: 'interrogation' };
+            logEntry = { id: Date.now(), text: `${player.name} pyta gracza ${target.name}: "Ile masz symboli: ${symbol}?"`, type: 'interrogation' };
 
             const count = target.hand.reduce((sum, card) => sum + (card.symbols.includes(symbol) ? 1 : 0), 0);
 
             lobby.gameState.log.push(logEntry);
-            lobby.gameState.log.push({ id: Date.now() + 1, text: `${target.name} answered: "${count}"`, type: 'response' });
+            lobby.gameState.log.push({ id: Date.now() + 1, text: `${target.name} odpowiada: "${count}"`, type: 'response' });
 
         } else if (type === 'accusation') {
             const { cardId } = payload;
             const suspect = SERVER_CARDS.find(c => c.id === Number(cardId));
-            logEntry = { id: Date.now(), text: `${player.name} accused: ${suspect.name}`, type: 'accusation' };
+            logEntry = { id: Date.now(), text: `${player.name} oskarża: ${suspect.name}`, type: 'accusation' };
             lobby.gameState.log.push(logEntry);
 
             if (lobby.gameState.criminal.id === suspect.id) {
                 // Win
                 lobby.gameState.phase = 'GAME_OVER';
-                lobby.gameState.winner = player.id;
-                io.to(code).emit('gameOver', { winner: player.id, criminal: lobby.gameState.criminal });
+                lobby.gameState.winner = player.id; // Still store ID for internal state
+                io.to(code).emit('gameOver', { winner: player.name, criminal: lobby.gameState.criminal });
                 shouldAdvanceTurn = false;
             } else {
                 // Elimination
                 player.eliminated = true;
-                lobby.gameState.log.push({ id: Date.now() + 1, text: `WRONG! ${player.name} is eliminated.`, type: 'failure' });
+                socket.emit('error', 'Niestety, to nie ten sprawca. Odpadasz z gry!');
+                lobby.gameState.log.push({ id: Date.now() + 1, text: `BŁĄD! ${player.name} odpada z gry.`, type: 'failure' });
 
                 // Check if everyone else is eliminated
                 const activePlayers = lobby.players.filter(p => !p.eliminated);
                 if (activePlayers.length === 1) {
                     lobby.gameState.phase = 'GAME_OVER';
                     lobby.gameState.winner = activePlayers[0].id;
-                    io.to(code).emit('gameOver', { winner: activePlayers[0].id, criminal: lobby.gameState.criminal });
+                    io.to(code).emit('gameOver', { winner: activePlayers[0].name, criminal: lobby.gameState.criminal });
                     shouldAdvanceTurn = false;
                 }
             }

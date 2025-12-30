@@ -24,18 +24,45 @@ const GameBoard = () => {
     return (
         <div className="game-controls">
             <div className="center-cards">
-                <h3>Crime Scene</h3>
+                <h3>Miejsce zbrodni</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     {/* Single criminal card face-down */}
                     {gameState.criminal && (
-                        <div className="card-back" style={{
-                            width: '60px', height: '90px',
-                            background: '#444', border: '2px solid #666',
-                            borderRadius: '4px', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            ?
-                        </div>
+                        gameState.phase === 'GAME_OVER' ? (
+                            <div className="card" style={{
+                                width: '80px', height: '120px',
+                                background: '#ffd700', color: '#111',
+                                borderRadius: '6px', padding: '6px',
+                                display: 'flex', flexDirection: 'column',
+                                fontSize: '0.8rem',
+                                border: '3px solid #f1c40f',
+                                boxShadow: '0 0 15px rgba(255, 215, 0, 0.5)',
+                                zIndex: 100
+                            }}>
+                                <div style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>SPRAWCA</div>
+                                <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: 'auto' }}>{gameState.criminal.name}</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
+                                    {gameState.criminal.symbols.map(s => {
+                                        const IconComponent = getIconComponent(s);
+                                        return (
+                                            <div key={s} style={{ background: 'rgba(255,255,255,0.3)', borderRadius: '4px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {IconComponent && <IconComponent size={20} color="#111" />}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="card-back" style={{
+                                width: '60px', height: '90px',
+                                background: '#444', border: '2px solid #666',
+                                borderRadius: '4px', display: 'flex',
+                                alignItems: 'center', justifyContent: 'center',
+                                fontSize: '1.5rem', fontWeight: 'bold', color: '#666'
+                            }}>
+                                ?
+                            </div>
+                        )
                     )}
                 </div>
             </div>
@@ -46,17 +73,7 @@ const GameBoard = () => {
 
             {/* Your Hand */}
             <div className="my-hand" style={{ marginTop: 'auto', textAlign: 'center' }}>
-                <div style={{ marginBottom: '10px' }}>
-                    {gameState.currentPlayerId !== localPlayer.id ? (
-                        <span style={{ color: '#aaa', fontStyle: 'italic' }}>
-                            Waiting for {gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}'s turn...
-                        </span>
-                    ) : (
-                        <span style={{ color: 'lime', fontWeight: 'bold' }}>YOUR TURN</span>
-                    )}
-                </div>
-
-                <h3>Your Hand</h3>
+                <h3>Twoja ręka</h3>
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                     {localPlayer.hand.map((card) => (
                         <div key={card.id} className="card" style={{

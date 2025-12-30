@@ -95,56 +95,64 @@ const GameLog = () => {
     };
 
     return (
-        <div className="game-log-container" style={{
-            marginTop: '1rem',
-            padding: '1rem',
+        <div className="game-log-wrapper" style={{
+            marginTop: '0.5rem',
             background: 'rgba(20, 20, 30, 0.95)',
             borderTop: '1px solid #444',
             borderRadius: '8px',
-            height: '250px',
-            overflowY: 'auto',
+            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)'
+            flex: 1,
+            minHeight: 0
         }}>
+            {/* Separate Header */}
             <h4 style={{
                 margin: '0',
-                padding: '0 0 10px 0',
+                padding: '12px 1rem',
                 color: '#aaa',
                 fontSize: '0.8rem',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
-                position: 'sticky',
-                top: 0,
-                background: 'rgb(30, 30, 40)', // Match container bg or close to it
-                zIndex: 10,
+                background: 'rgb(30, 30, 40)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                borderBottom: '1px solid #333'
+                borderBottom: '2px solid #444',
+                borderRadius: '8px 8px 0 0'
             }}>
-                <ICONS.Book size={14} /> Investigation Log
+                <ICONS.Book size={14} /> Przebieg gry
             </h4>
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                {messageLog.length === 0 && (
-                    <div style={{ color: '#555', fontStyle: 'italic', textAlign: 'center', marginTop: '20px' }}>
-                        Game started. Waiting for actions...
-                    </div>
-                )}
-
-                {messageLog.map(msg => {
-                    const { style, Icon, iconColor } = getLogStyle(msg.type);
-                    return (
-                        <div key={msg.id} style={style}>
-                            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                                <Icon size={18} color={iconColor} />
-                            </div>
-                            <div>{msg.text}</div>
+            {/* Scrollable Container */}
+            <div className="game-log-container" style={{
+                padding: '1rem',
+                flex: 1,
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0
+            }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {messageLog.length === 0 && (
+                        <div style={{ color: '#555', fontStyle: 'italic', textAlign: 'center', marginTop: '20px' }}>
+                            Gra rozpoczęta. Czekam na ruch...
                         </div>
-                    );
-                })}
-                <div ref={bottomRef} />
+                    )}
+
+                    {messageLog.map(msg => {
+                        const { style, Icon, iconColor } = getLogStyle(msg.type);
+                        return (
+                            <div key={msg.id} style={style}>
+                                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                                    <Icon size={18} color={iconColor} />
+                                </div>
+                                <div>{msg.text}</div>
+                            </div>
+                        );
+                    })}
+                    <div ref={bottomRef} />
+                </div>
             </div>
         </div>
     );

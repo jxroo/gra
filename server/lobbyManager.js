@@ -35,10 +35,10 @@ export class LobbyManager {
 
     joinLobby(code, socketId, playerName) {
         const lobby = this.lobbies.get(code);
-        if (!lobby) return { error: 'Lobby not found' };
-        if (lobby.gameState.phase !== 'LOBBY') return { error: 'Game already started' };
-        if (lobby.players.length >= 6) return { error: 'Lobby full' };
-        if (lobby.players.some(p => p.name === playerName)) return { error: 'Name taken' };
+        if (!lobby) return { error: 'Lobby nie zostało znalezione' };
+        if (lobby.gameState.phase !== 'LOBBY') return { error: 'Gra już się rozpoczęła' };
+        if (lobby.players.length >= 6) return { error: 'Lobby jest pełne' };
+        if (lobby.players.some(p => p.name === playerName)) return { error: 'Nazwa użytkownika jest zajęta' };
 
         const newPlayer = {
             id: socketId,

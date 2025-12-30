@@ -47,9 +47,9 @@ export const ChatPanel = () => {
                     style={{ flex: 1, background: 'local', border: 'none', padding: '5px', color: 'white' }}
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    placeholder="Chat..."
+                    placeholder="Czat..."
                 />
-                <button type="submit" style={{ border: 'none', background: '#444', color: 'white', cursor: 'pointer' }}>Send</button>
+                <button type="submit" style={{ border: 'none', background: '#444', color: 'white', cursor: 'pointer' }}>Wyślij</button>
             </form>
         </div>
     );
@@ -57,9 +57,9 @@ export const ChatPanel = () => {
 
 export const NotesPanel = () => (
     <div style={{ border: '1px solid #444', marginTop: '10px', background: '#222', height: '80px', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: '0.7rem', color: '#666', padding: '2px 5px', background: '#1a1a1a' }}>NOTES</div>
+        <div style={{ fontSize: '0.7rem', color: '#666', padding: '2px 5px', background: '#1a1a1a' }}>NOTATKI</div>
         <textarea
-            placeholder="Your private notes..."
+            placeholder="Twoje prywatne notatki..."
             style={{
                 flex: 1,
                 background: '#222',

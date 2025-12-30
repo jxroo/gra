@@ -53,7 +53,7 @@ export const GameProvider = ({ children }) => {
             }));
 
             setMessageLog([]);
-            addToLog("Game Started!", "system");
+            addToLog("Gra rozpoczęta!", "system");
         });
 
         // On hand update (private)
@@ -85,7 +85,7 @@ export const GameProvider = ({ children }) => {
                 winner: data.winner,
                 criminal: data.criminal
             }));
-            addToLog(`GAME OVER! Winner: ${data.winner}`, 'system');
+            addToLog(`Gra zakończona! ${data.winner} wygrał!`, 'system');
         });
 
         // On Lobby update (to keep lobbyCode sync if needed)
@@ -95,7 +95,7 @@ export const GameProvider = ({ children }) => {
             // Also update local player ID if we find ourselves
             const me = lobby.players.find(p => p.id === socket.id);
             if (me) {
-                setLocalPlayer(prev => ({ ...prev, id: me.id, name: me.name }));
+                setLocalPlayer(prev => ({ ...prev, id: me.id, name: me.name, eliminated: me.eliminated }));
             }
         });
 

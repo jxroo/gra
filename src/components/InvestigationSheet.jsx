@@ -81,9 +81,9 @@ const InvestigationSheet = () => {
     }
 
     return (
-        <div className="sheet" style={{ color: '#fff', fontSize: '0.9rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="sheet" style={{ color: '#fff', fontSize: '0.9rem', flex: '0 0 auto', display: 'flex', flexDirection: 'column', maxHeight: '50%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h3 style={{ margin: 0 }}>Investigation Sheet</h3>
+                <h3 style={{ margin: 0 }}>Tabela dochodzenia</h3>
             </div>
 
             {/* Top Grid: 4x8 */}
