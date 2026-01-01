@@ -5,29 +5,27 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { LobbyManager } from './lobbyManager.js';
-import { CARDS, SYMBOLS } from '../src/data/gameData.js'; // We'll need to make sure this path works or duplicate data
+import { CARDS, SYMBOLS } from './gameData.js';
 
-// Minimal game data duplication if import fails (Node might struggle with .jsx or client paths without config)
-// For simplicity, let's redefine minimal needed data or try to import if it's a pure JS file.
-// gameData.js is outside. Let's just create a helper here to avoid import issues.
-const SERVER_CARDS = [
-    { id: 1, name: "Sebastian Moran", symbols: ['czaszka', 'piesc'] },
-    { id: 2, name: "Irene Adler", symbols: ['czaszka', 'zarowka', 'naszyjnik'] },
-    { id: 3, name: "Inspector G. Lestrade", symbols: ['odznaka', 'oko', 'ksiazka'] },
-    { id: 4, name: "Inspector Gregson", symbols: ['odznaka', 'piesc', 'ksiazka'] },
-    { id: 5, name: "Inspector Baynes", symbols: ['zarowka', 'odznaka'] },
-    { id: 6, name: "Inspector Bradstreet", symbols: ['piesc', 'odznaka'] },
-    { id: 7, name: "Inspector Hopkins", symbols: ['odznaka', 'fajka', 'oko'] },
-    { id: 8, name: "Sherlock Holmes", symbols: ['fajka', 'zarowka', 'piesc'] },
-    { id: 9, name: "John H. Watson", symbols: ['fajka', 'oko', 'piesc'] },
-    { id: 10, name: "Mycroft Holmes", symbols: ['fajka', 'zarowka', 'ksiazka'] },
-    { id: 11, name: "Mrs. Hudson", symbols: ['fajka', 'naszyjnik'] },
-    { id: 12, name: "Mary Morstan", symbols: ['ksiazka', 'naszyjnik'] },
-    { id: 13, name: "James Moriarty", symbols: ['czaszka', 'zarowka'] }
-];
 
 const app = express();
-app.use(cors());
+
+// Use environment variable for CORS origin in production, default to * for dev
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://sherlockholmesbyjaro.netlify.app'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
+        return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+    }
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,8 +37,9 @@ app.use(express.static(distPath));
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "*", // In production, restrict this
-        methods: ["GET", "POST"]
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -75,7 +74,7 @@ io.on('connection', (socket) => {
         }
 
         // Game Setup Logic
-        const shuffled = [...SERVER_CARDS].sort(() => Math.random() - 0.5);
+        const shuffled = [...CARDS].sort(() => Math.random() - 0.5);
         const criminal = shuffled.pop();
 
         // Deal cards
@@ -168,7 +167,7 @@ io.on('connection', (socket) => {
 
         } else if (type === 'accusation') {
             const { cardId } = payload;
-            const suspect = SERVER_CARDS.find(c => c.id === Number(cardId));
+            const suspect = CARDS.find(c => c.id === Number(cardId));
             logEntry = { id: Date.now(), text: `${player.name} oskarża: ${suspect.name}`, type: 'accusation' };
             lobby.gameState.log.push(logEntry);
 
