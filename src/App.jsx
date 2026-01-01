@@ -27,7 +27,7 @@ function App() {
         </div>
         <div style={{ textAlign: 'right' }}>
           <div>Kolejka: <span style={{ color: gameState.currentPlayerId === localPlayer.id ? 'lime' : 'white' }}>
-            {gameState.currentPlayerId === localPlayer.id ? 'YOU' : gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}
+            {gameState.currentPlayerId === localPlayer.id ? 'TY' : gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}
           </span></div>
         </div>
       </header>

@@ -2,6 +2,8 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { LobbyManager } from './lobbyManager.js';
 import { CARDS, SYMBOLS } from '../src/data/gameData.js'; // We'll need to make sure this path works or duplicate data
 
@@ -26,6 +28,13 @@ const SERVER_CARDS = [
 
 const app = express();
 app.use(cors());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from the React app build folder
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -217,6 +226,11 @@ io.on('connection', (socket) => {
             io.to(result.code).emit('lobbyUpdated', result.lobby);
         }
     });
+});
+
+// For any request that doesn't match one above, send back React's index.html file
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3000;

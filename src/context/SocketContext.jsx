@@ -11,9 +11,9 @@ export const SocketProvider = ({ children }) => {
     const [connected, setConnected] = useState(false);
 
     useEffect(() => {
-        // Assuming server runs on localhost:3000 locally
-        // For production, this should be an env variable
-        const newSocket = io('http://192.168.0.26:3000');
+        // Use environment variable for production, fallback to localhost for development
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+        const newSocket = io(backendUrl);
 
         newSocket.on('connect', () => {
             console.log('Connected to server');

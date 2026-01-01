@@ -52,7 +52,7 @@ const LobbyScreen = () => {
                 <h1>Sherlock - Multiplayer</h1>
                 <input
                     type="text"
-                    placeholder="Wpisz swoje imię"
+                    placeholder="Wpisz swoją nazwę"
                     value={playerName}
                     onChange={e => setPlayerName(e.target.value)}
                     style={{ padding: '8px', fontSize: '1.2em', width: '100%', marginBottom: '20px' }}
