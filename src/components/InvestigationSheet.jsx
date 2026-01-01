@@ -128,9 +128,7 @@ const InvestigationSheet = () => {
                                     >
                                         <input
                                             type="text"
-                                            inputMode="numeric"
-                                            pattern="[0-9]*"
-                                            maxLength={2}
+                                            maxLength={1}
                                             style={{
                                                 width: '90%',
                                                 background: 'transparent',
@@ -141,7 +139,7 @@ const InvestigationSheet = () => {
                                             }}
                                             value={gridState[`${pIdx}_${sym}`] || ''}
                                             onChange={e => {
-                                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                                const val = e.target.value;
                                                 setGridState(prev => ({ ...prev, [`${pIdx}_${sym}`]: val }));
                                             }}
                                         />
