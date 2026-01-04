@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useGame } from '../context/GameContext';
+import { ICONS } from './Icons';
 
 export const ChatPanel = () => {
     const { socket } = useSocket();
-    const { gameState } = useGame();
+    const { gameState, localPlayer } = useGame(); // Added localPlayer to identify own messages
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const messagesEndRef = useRef(null);
@@ -32,42 +33,152 @@ export const ChatPanel = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '200px', border: '1px solid #444', marginTop: '10px', background: '#222' }}>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '5px', fontSize: '0.8rem' }}>
-                {messages.map((m, i) => (
-                    <div key={i} style={{ marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 'bold', color: '#aaa' }}>{m.sender}: </span>
-                        <span>{m.text}</span>
-                    </div>
-                ))}
+        <div className="panel-glass" style={{
+            height: '240px',
+            marginTop: 'var(--spacing-md)',
+            background: 'rgba(15, 15, 20, 0.85)',
+            border: '1px solid var(--color-border)',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
+            {/* Header */}
+            <div style={{
+                padding: '8px 12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.8rem',
+                color: 'var(--color-primary)',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-header)'
+            }}>
+                <ICONS.Book size={14} color="var(--color-primary)" /> Szyfrowany Kanał
+            </div>
+
+            {/* Messages Area */}
+            <div style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+            }}>
+                {messages.map((m, i) => {
+                    const isSystem = m.sender === 'System';
+                    const isMe = m.sender === (localPlayer?.name || 'Ja'); // Basic check, better if we use IDs
+
+                    return (
+                        <div key={i} style={{
+                            fontSize: '0.85rem',
+                            padding: '4px 8px',
+                            background: isSystem ? 'transparent' : 'rgba(255,255,255,0.03)',
+                            borderLeft: isSystem ? 'none' : `2px solid ${isMe ? 'var(--color-primary)' : 'var(--color-accent-info)'}`,
+                            marginLeft: isMe ? 'auto' : '0',
+                            maxWidth: '90%',
+                            borderRadius: '0 4px 4px 0'
+                        }}>
+                            {!isMe && !isSystem && <span style={{
+                                fontWeight: '700',
+                                color: 'var(--color-text-muted)',
+                                fontSize: '0.75rem',
+                                display: 'block',
+                                marginBottom: '2px'
+                            }}>{m.sender}</span>}
+
+                            <span style={{
+                                color: isSystem ? 'var(--color-secondary)' : 'var(--color-text-main)',
+                                fontStyle: isSystem ? 'italic' : 'normal'
+                            }}>
+                                {m.text}
+                            </span>
+                        </div>
+                    );
+                })}
                 <div ref={messagesEndRef} />
             </div>
-            <form onSubmit={send} style={{ display: 'flex', borderTop: '1px solid #444' }}>
+
+            {/* Input Area */}
+            <form onSubmit={send} style={{
+                display: 'flex',
+                padding: '8px',
+                background: 'rgba(0,0,0,0.2)',
+                gap: '8px'
+            }}>
                 <input
-                    style={{ flex: 1, background: 'local', border: 'none', padding: '5px', color: 'white' }}
+                    style={{
+                        flex: 1,
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        padding: '6px 10px',
+                        color: 'var(--color-text-highlight)',
+                        borderRadius: '4px',
+                        fontSize: '0.9rem',
+                        fontFamily: 'var(--font-ui)',
+                        outline: 'none'
+                    }}
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    placeholder="Czat..."
+                    placeholder="Wpisz wiadomość..."
                 />
-                <button type="submit" style={{ border: 'none', background: '#444', color: 'white', cursor: 'pointer' }}>Wyślij</button>
+                <button type="submit" style={{
+                    border: '1px solid var(--color-primary-dim)',
+                    background: 'rgba(212, 160, 23, 0.1)',
+                    color: 'var(--color-primary)',
+                    padding: '0 12px',
+                    fontSize: '0.8rem',
+                    borderRadius: '4px'
+                }}>
+                    WYŚLIJ
+                </button>
             </form>
         </div>
     );
 };
 
 export const NotesPanel = () => (
-    <div style={{ border: '1px solid #444', marginTop: '10px', background: '#222', height: '80px', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: '0.7rem', color: '#666', padding: '2px 5px', background: '#1a1a1a' }}>NOTATKI</div>
+    <div className="panel-glass" style={{
+        marginTop: 'var(--spacing-md)',
+        height: '150px',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'rgba(15, 15, 20, 0.85)',
+        border: '1px solid var(--color-border)',
+        overflow: 'hidden'
+    }}>
+        <div style={{
+            fontSize: '0.8rem',
+            color: 'var(--color-primary)',
+            padding: '8px 12px',
+            background: 'rgba(255, 255, 255, 0.03)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            fontWeight: '700',
+            fontFamily: 'var(--font-header)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+        }}>
+            <ICONS.Search size={14} /> Prywatne Notatki
+        </div>
         <textarea
-            placeholder="Twoje prywatne notatki..."
+            placeholder="Notatki śledcze..."
             style={{
                 flex: 1,
-                background: '#222',
-                color: '#ddd',
+                background: 'transparent',
+                color: 'var(--color-text-main)',
                 border: 'none',
-                padding: '5px',
-                fontSize: '0.8rem',
-                resize: 'none'
+                padding: '10px',
+                fontSize: '0.9rem',
+                resize: 'none',
+                fontFamily: 'var(--font-ui)',
+                outline: 'none',
+                lineHeight: '1.5'
             }}
         />
     </div>
