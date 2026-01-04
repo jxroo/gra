@@ -6,9 +6,12 @@ import InvestigationSheet from './components/InvestigationSheet'
 import GameLog from './components/GameLog'
 import LobbyScreen from './components/LobbyScreen'
 import { ChatPanel, NotesPanel } from './components/ChatPanel'
+import GameRules from './components/GameRules'
+import { ICONS } from './components/Icons'
 
 function App() {
   const { gameState, localPlayer } = useGame();
+  const [showRules, setShowRules] = React.useState(false);
 
   if (gameState.phase === 'SETUP' || gameState.phase === 'LOBBY') {
     return (
@@ -25,10 +28,26 @@ function App() {
           <h2>Sherlock</h2>
           <span style={{ fontSize: '0.8em', color: '#888' }}>Lobby: {gameState.lobbyCode}</span>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: 'right', display: 'flex', gap: '15px', alignItems: 'center' }}>
           <div>Kolejka: <span style={{ color: gameState.currentPlayerId === localPlayer.id ? 'lime' : 'white' }}>
             {gameState.currentPlayerId === localPlayer.id ? 'TY' : gameState.players.find(p => p.id === gameState.currentPlayerId)?.name}
           </span></div>
+          <button
+            onClick={() => setShowRules(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-primary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}
+            title="Zasady Gry"
+          >
+            <ICONS.Book size={20} />
+            <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Zasady gry</span>
+          </button>
         </div>
       </header>
 
@@ -43,6 +62,7 @@ function App() {
           <NotesPanel />
         </div>
       </div>
+      <GameRules isOpen={showRules} onClose={() => setShowRules(false)} />
     </div>
   )
 }

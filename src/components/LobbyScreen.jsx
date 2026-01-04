@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useGame } from '../context/GameContext';
 import { ICONS } from './Icons';
+import GameRules from './GameRules';
 
 const LobbyScreen = () => {
     const { socket } = useSocket();
@@ -12,6 +13,7 @@ const LobbyScreen = () => {
     const [lobbyCode, setLobbyCode] = useState('');
     const [lobbyState, setLobbyState] = useState(null);
     const [error, setError] = useState('');
+    const [showRules, setShowRules] = useState(false);
 
     React.useEffect(() => {
         if (!socket) return;
@@ -98,6 +100,20 @@ const LobbyScreen = () => {
         boxShadow: '0 0 15px rgba(212, 160, 23, 0.3)'
     };
 
+
+
+    const buttonSecondaryStyle = {
+        ...buttonStyle,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        color: 'var(--color-text-muted)',
+        background: 'rgba(255, 255, 255, 0.05)',
+        fontSize: '0.8rem',
+        padding: '8px 16px',
+        width: 'auto',
+        alignSelf: 'center',
+        marginTop: '10px'
+    };
+
     if (view === 'menu') {
         return (
             <div className="lobby-container" style={commonContainerStyle}>
@@ -140,8 +156,18 @@ const LobbyScreen = () => {
                     >
                         Nowa Sprawa
                     </button>
+
+                    <button
+                        onClick={() => setShowRules(true)}
+                        style={buttonSecondaryStyle}
+                    >
+                        <ICONS.Book size={16} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />
+                        ZASADY GRY
+                    </button>
                 </div>
                 {error && <p style={{ color: 'var(--color-accent-danger)' }}>{error}</p>}
+
+                <GameRules isOpen={showRules} onClose={() => setShowRules(false)} />
             </div>
         );
     }
