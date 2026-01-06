@@ -26,6 +26,7 @@
   --font-header: 'Cinzel', serif;
   --font-ui: 'Rajdhani', sans-serif;
   --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Source Code Pro', 'Courier New', monospace;
   /* Using Rajdhani for most game UI text for that HUD feel */
 
   /* --- Spacing --- */

@@ -184,7 +184,7 @@ const LobbyScreen = () => {
                         placeholder="______"
                         value={lobbyCode}
                         onChange={e => setLobbyCode(e.target.value)}
-                        style={{ ...inputStyle, letterSpacing: '5px', fontWeight: '700' }}
+                        style={{ ...inputStyle, letterSpacing: '5px', fontWeight: '700', fontFamily: 'var(--font-mono)' }}
                         maxLength={6}
                     />
                 </div>
@@ -205,7 +205,7 @@ const LobbyScreen = () => {
                 <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
                     <h2 style={{ marginBottom: '5px', fontSize: '1rem', color: 'var(--color-text-muted)' }}>LOBBY OPERACYJNE</h2>
                     <div style={{
-                        fontFamily: 'var(--font-ui)',
+                        fontFamily: 'var(--font-mono)',
                         fontSize: '3em',
                         fontWeight: '700',
                         color: 'var(--color-primary)',
