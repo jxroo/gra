@@ -88,7 +88,7 @@ const ActionControls = () => {
     return (
         <div className="controls" style={{ padding: '1rem', background: '#333', marginTop: '1rem', borderRadius: '8px' }}>
             {mode === 'IDLE' && (
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="action-buttons-container" style={{ display: 'flex', gap: '10px' }}>
                     <button style={{ flex: 1 }} onClick={() => setMode('SELECT_SYMBOL_INV')}>Dochodzenie</button>
                     <button style={{ flex: 1 }} onClick={() => setMode('SELECT_PLAYER_INT')}>Przesłuchanie</button>
                     <button

@@ -11,8 +11,8 @@ export const SocketProvider = ({ children }) => {
     const [connected, setConnected] = useState(false);
 
     useEffect(() => {
-        // Use environment variable for production, fallback to localhost for development
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+        // Use environment variable for production, fallback to current hostname for development
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:5000`;
         const newSocket = io(backendUrl);
 
         newSocket.on('connect', () => {

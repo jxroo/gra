@@ -50,13 +50,13 @@ function App() {
           className={mobileTab === 'sheet' ? 'active' : ''}
           onClick={() => setMobileTab('sheet')}
         >
-          Investigation
+          Dochodzenie
         </button>
         <button
           className={mobileTab === 'board' ? 'active' : ''}
           onClick={() => setMobileTab('board')}
         >
-          Game Board
+          Plansza gry
         </button>
       </nav>
     </div>

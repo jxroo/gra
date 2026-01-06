@@ -38,7 +38,17 @@ app.use(express.static(distPath));
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+            // In development, allow any localhost or 192.168.x.x origin
+            if (!origin || origin.match(/^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+):(5173|5000)$/)) {
+                return callback(null, true);
+            }
+            // In production, check against allowed origins
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            callback(new Error('CORS not allowed'));
+        },
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -233,7 +243,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

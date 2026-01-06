@@ -175,7 +175,7 @@ const LobbyScreen = () => {
     if (view === 'join') {
         return (
             <div className="lobby-container" style={commonContainerStyle}>
-                <h2 style={{ fontFamily: 'var(--font-header)', color: 'var(--color-text-main)' }}>Bezpieczny Dostęp</h2>
+                <h2 style={{ fontFamily: 'var(--font-header)', color: 'var(--color-text-main)' }}>Podaj kod dostępu</h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <label style={{ textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>KOD DOSTĘPU</label>

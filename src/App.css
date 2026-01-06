@@ -203,3 +203,93 @@
     border-top: 1px solid var(--color-border);
 }
 
+
+/* Mobile Action Buttons Stack */
+@media (max-width: 600px) {
+    .action-buttons-container {
+        flex-direction: column !important;
+    }
+    
+    .action-buttons-container button {
+        padding: 15px !important; /* Larger touch targets */
+    }
+}
+
+
+/* --- Enhanced Mobile Readability --- */
+
+/* Sticky Headers for Investigation Table */
+.sheet-layout .table-container {
+    max-height: 100%;
+}
+
+.sheet-layout th {
+    background-color: var(--color-bg-panel); /* Needs background to cover content when scrolling */
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.5); /* separation shadow */
+}
+
+/* Fix for the corner cell to stay on top of both scroll directions if needed, 
+   but simplistic sticky top is usually enough for mobile vertical space */
+.sheet-layout th:first-child {
+    z-index: 6;
+}
+
+/* First column (Player Names) sticky */
+.sheet-layout td:first-child, 
+.sheet-layout th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--color-bg-panel);
+    z-index: 4;
+    border-right: 2px solid var(--color-border);
+}
+
+.sheet-layout th:first-child {
+    z-index: 6; /* Intersection of top and left header */
+}
+
+
+/* Increase contrast for icons in dark mode */
+.sheet-layout th svg {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
+}
+
+/* Larger Text on Mobile */
+@media (max-width: 600px) {
+    :root {
+        font-size: 18px; /* Base font bump */
+    }
+
+    /* Hand cards */
+    .my-hand .card {
+        width: 100px !important;
+        height: 150px !important;
+    }
+    
+    /* Crime Scene Reveal */
+    .center-cards .card {
+        width: 120px !important;
+        height: 180px !important;
+    }
+
+    /* Table Cells - ensure hit area is large */
+    .sheet-layout td {
+        height: 50px !important;
+        min-width: 50px;
+        font-size: 1.5rem !important; /* Big check marks */
+    }
+    
+    /* Game Log Text - easier reading */
+    .game-log-container div {
+        font-size: 1rem !important;
+    }
+
+    /* Input fields in forms */
+    input, select, button {
+        font-size: 1rem !important; 
+    }
+}
+

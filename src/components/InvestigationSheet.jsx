@@ -149,7 +149,7 @@ const InvestigationSheet = () => {
                                                 height: '40px',
                                                 backgroundColor: bgColor,
                                                 transition: 'background-color 0.2s',
-                                                position: 'relative'
+                                                position: 'relative',
                                             }}
                                         >
                                             <input
@@ -159,14 +159,17 @@ const InvestigationSheet = () => {
                                                     width: '100%',
                                                     height: '100%',
                                                     background: 'transparent',
-                                                    color: '#fff',
+                                                    color: state === '?' ? 'var(--color-primary)' : 
+                                                           state === '✗' ? 'var(--color-accent-danger)' : 
+                                                           state === '✓' ? 'var(--color-accent-success)' : '#fff',
                                                     border: 'none',
                                                     textAlign: 'center',
-                                                    fontSize: '1.1rem',
+                                                    fontSize: '1.2rem',
                                                     fontFamily: 'var(--font-ui)',
-                                                    fontWeight: '600',
+                                                    fontWeight: '700',
                                                     caretColor: 'var(--color-primary)',
-                                                    outline: 'none'
+                                                    outline: 'none',
+                                                    padding: 0
                                                 }}
                                                 value={state || ''}
                                                 onChange={e => {
