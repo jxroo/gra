@@ -12,6 +12,7 @@ const app = express();
 
 // Use environment variable for CORS origin in production, default to * for dev
 const allowedOrigins = [
+    'http://192.168.0.26:5173/',
     'http://localhost:5173',
     'https://sherlockholmesbyjaro.netlify.app'
 ];
